@@ -29,7 +29,7 @@ public class FileMonitor {
     @Value("${mapper.reload.interval:1000}")
     private int reloadInterval;
 
-    private FileAlterationMonitor monitor = new FileAlterationMonitor(reloadInterval);
+    private FileAlterationMonitor monitor;
 
     /**
      * mapper文件路径获取和监听
@@ -39,7 +39,7 @@ public class FileMonitor {
         String xmlPath;
         Resource[] resources = mybatisProperties.resolveMapperLocations();
         if (resources != null && resources.length > 0) {
-            xmlPath = resources[0].getFile().getAbsolutePath();
+            xmlPath = resources[0].getFile().getParentFile().getAbsolutePath();
         } else {
             Class mapperType = ((Field) mapperReloader.beanAndMapperFields.values().toArray()[0]).getType();
             String xmlResource = mapperType.getName().replace('.', '/') + ".xml";
@@ -59,8 +59,9 @@ public class FileMonitor {
      */
     public void monitor(String path, FileAlterationListener listener) {
         FileAlterationObserver observer = new FileAlterationObserver(new File(path));
-        monitor.addObserver(observer);
         observer.addListener(listener);
+        monitor = new FileAlterationMonitor(reloadInterval);
+        monitor.addObserver(observer);
     }
 
     public void stop() throws Exception {

@@ -7,11 +7,6 @@ import javassist.LoaderClassPath;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.security.ProtectionDomain;
 
 /**
@@ -49,7 +44,7 @@ public class MybatisAgent {
                 CtClass ctClass = classPool.get(classFile.replace("/", "."));
                 CtMethod ctMethod = ctClass.getDeclaredMethod("getObject");
                 // ctMethod.insertBefore("System.out.println(\"after  set = \" + com.cc.agent.mapper.filelistener.MapperReloader.sqlSessionFactoryBean );");
-                ctMethod.insertBefore("com.cc.agent.mapper.filelistener.MapperReloader.sqlSessionFactoryBean = this;");
+                ctMethod.insertBefore("com.cc.mapper.reloader.MapperReloader.sqlSessionFactoryBean = this;");
                 // ctMethod.insertBefore("System.out.println(\"before set = \" + com.cc.agent.mapper.filelistener.MapperReloader.sqlSessionFactoryBean );");
 
                 // 返回重新编译的字节码

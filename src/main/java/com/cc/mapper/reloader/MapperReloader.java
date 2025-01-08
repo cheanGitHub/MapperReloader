@@ -1,5 +1,6 @@
 package com.cc.mapper.reloader;
 
+import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
@@ -24,11 +25,15 @@ public class MapperReloader {
 
     public void reloadMapper() {
         try {
-            Method method = sqlSessionFactoryBean.getClass().getDeclaredMethod("buildSqlSessionFactory");
-            method.setAccessible(true);
-            SqlSessionFactory sqlSessionFactoryOwn = (SqlSessionFactory) method.invoke(sqlSessionFactoryBean);
+            Configuration configuration = (Configuration) getMember(sqlSessionFactoryBean, "configuration");
+            ((Set)getMember(configuration, "loadedResources")).clear();
+            ((Map)getMember(configuration, "mappedStatements")).clear();
 
-            SqlSessionTemplate sqlSessionTemplate = new SqlSessionTemplate(sqlSessionFactoryOwn);
+            Method method = SqlSessionFactoryBean.class.getDeclaredMethod("buildSqlSessionFactory");
+            method.setAccessible(true);
+            SqlSessionFactory sqlSessionFactoryNew = (SqlSessionFactory) method.invoke(sqlSessionFactoryBean);
+
+            SqlSessionTemplate sqlSessionTemplate = new SqlSessionTemplate(sqlSessionFactoryNew);
             Collection<Class<?>> mapperClasses = sqlSessionTemplate.getConfiguration().getMapperRegistry().getMappers();
             beanAndMapperFields.forEach((bean, mapperFields) -> {
                 mapperFields.forEach(mapperField -> {
@@ -49,5 +54,11 @@ public class MapperReloader {
             System.err.println("reload error:");
             t.printStackTrace();
         }
+    }
+
+    private Object getMember(Object obj, String fieldName) throws NoSuchFieldException, IllegalAccessException {
+        Field field = obj.getClass().getDeclaredField(fieldName);
+        field.setAccessible(true);
+        return field.get(obj);
     }
 }
