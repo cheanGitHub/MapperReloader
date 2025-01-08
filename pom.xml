@@ -44,13 +44,12 @@
                             <Premain-Class>com.cc.mapper.reloader.MybatisAgent</Premain-Class>
                             <Can-Redefine-Classes>true</Can-Redefine-Classes>
                             <Can-Retransform-Classes>true</Can-Retransform-Classes>
-                            <Class-Path>../jars/tools.jar</Class-Path>
                         </manifestEntries>
                     </archive>
                 </configuration>
             </plugin>
 
-            <plugin>
+            <!--<plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
                     <archive>
@@ -76,7 +75,7 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin>-->
 
             <plugin>
                 <artifactId>maven-source-plugin</artifactId>
